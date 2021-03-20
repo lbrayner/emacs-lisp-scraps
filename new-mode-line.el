@@ -125,11 +125,10 @@ evil-mode-line-tag
 (defun my/path-components-as-list (path)
   (let* ((path-as-file (directory-file-name path))
          (parent (file-name-directory path-as-file)))
-    (cond ((or (not parent) (equal path-as-file parent))
-           (list path-as-file))
-          (t
-           (cons (file-name-nondirectory path-as-file)
-                 (my/path-components-as-list parent))))))
+    (if (or (not parent) (equal path-as-file parent))
+        (list path-as-file)
+      (cons (file-name-nondirectory path-as-file)
+            (my/path-components-as-list parent)))))
 
 ;; (defun my/path-components-as-list (path)
 ;;   (let ((path-as-file (directory-file-name path)))
@@ -182,15 +181,15 @@ evil-mode-line-tag
 (my/path-components-list-to-absolute-path '("config-mode-line.el" "config" ".emacs.d" "~"))
 ;; "/home/desenvolvedor/.emacs.d/config/config-mode-line.el"
 
-(defun my/truncate-path (truncated-path-components path-components max-length)
-  (let* ((path (append truncated-path-components path-components))
+(defun my/truncate-path (ts ps m)
+  (let* ((path (append ts ps))
          (length (apply #'+ (mapcar #'length path))))
-    (if (or (not path-components) (< length max-length))
+    (if (or (not ps) (< length m))
         path
-      (let ((remaining-path-components (cdr path-components))
-            (resulting-truncated-path-components (append truncated-path-components
-                                                   (list (my/truncate-path-component (car path-components))))))
-        (my/truncate-path resulting-truncated-path-components remaining-path-components max-length)))))
+      (let ((remaining-ps (cdr ps))
+            (resulting-ts (append ts
+                                  (list (my/truncate-path-component (car ps))))))
+        (my/truncate-path resulting-ts remaining-ps m)))))
 
 (apply #'+ (mapcar #'length (my/path-components-as-list
                    "/home/desenvolvedor/.emacs.d/config/config-mode-line.el")))
@@ -201,8 +200,8 @@ evil-mode-line-tag
 ;; ("/" "h" "d" "." "config" "config-mode-line.el")
 
 
-(defun my/truncate-path-component (element)
-  (substring element 0 1))
+(defun my/truncate-path-component (component)
+  (substring component 0 1))
 
 (my/truncate-path-component "Documents")
 
