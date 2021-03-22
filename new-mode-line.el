@@ -127,8 +127,8 @@ evil-mode-line-tag
          (parent (file-name-directory path-as-file)))
     (if (or (not parent) (equal path-as-file parent))
         (list path-as-file)
-      (cons (file-name-nondirectory path-as-file)
-            (my/path-components-as-list parent)))))
+      (append (my/path-components-as-list parent)
+              (list (file-name-nondirectory path-as-file))))))
 
 ;; (defun my/path-components-as-list (path)
 ;;   (let ((path-as-file (directory-file-name path)))
@@ -194,9 +194,8 @@ evil-mode-line-tag
 (apply #'+ (mapcar #'length (my/path-components-as-list
                    "/home/desenvolvedor/.emacs.d/config/config-mode-line.el")))
 
-(my/truncate-path nil (reverse (my/path-components-as-list
-                            "/home/desenvolvedor/.emacs.d/config/config-mode-line.el"))
-                  30)
+(my/truncate-path nil (my/path-components-as-list
+                       "/home/desenvolvedor/.emacs.d/config/config-mode-line.el") 30)
 ;; ("/" "h" "d" "." "config" "config-mode-line.el")
 
 
