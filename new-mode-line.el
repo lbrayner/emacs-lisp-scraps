@@ -122,21 +122,13 @@ evil-mode-line-tag
 ;; (my/file-name-components-as-list "/home/desenvolvedor/.emacs.d/config/")
 ;; ("~" ".emacs.d" "config")
 
-(defun my/path-components-as-list (path)
+(defun my/path-as-list (path)
   (let* ((path-as-file (directory-file-name path))
          (parent (file-name-directory path-as-file)))
     (if (or (not parent) (equal path-as-file parent))
         (list path-as-file)
-      (append (my/path-components-as-list parent)
+      (append (my/path-as-list parent)
               (list (file-name-nondirectory path-as-file))))))
-
-;; (defun my/path-components-as-list (path)
-;;   (let ((path-as-file (directory-file-name path)))
-;;     (if (equal (file-name-directory path-as-file) path-as-file)
-;;         (list path-as-file)
-;;       (progn (message "path-as-file %s" path-as-file)
-;;              (cons (file-name-nondirectory path-as-file)
-;;                    (my/path-components-as-list (file-name-directory path-as-file)))))))
 
 (file-name-directory "/home/desenvolvedor/.emacs.d/config/config-mode-line.el")
 (file-name-as-directory "/home/desenvolvedor/.emacs.d/config")
@@ -152,10 +144,10 @@ evil-mode-line-tag
 (equal (file-name-directory "~/.emacs.d") "~/.emacs.d")
 (equal (file-name-directory "~/") "~/")
 (directory-file-name "~/")
-(my/path-components-as-list "/")
-(my/path-components-as-list "/home")
-(my/path-components-as-list "/home/desenvolvedor/.emacs.d/config/config-mode-line.el")
-(my/path-components-as-list (abbreviate-file-name
+(my/path-as-list "/")
+(my/path-as-list "/home")
+(my/path-as-list "/home/desenvolvedor/.emacs.d/config/config-mode-line.el")
+(my/path-as-list (abbreviate-file-name
                              "/home/desenvolvedor/.emacs.d/config/config-mode-line.el"))
 ;; ("config-mode-line.el" "config" ".emacs.d" "~")
 
@@ -187,15 +179,15 @@ evil-mode-line-tag
     (if (or (not ps) (< length m))
         path
       (let ((remaining-ps (cdr ps))
-            (resulting-ts (append ts
-                                  (list (my/truncate-path-component (car ps))))))
+            (resulting-ts (append ts (list (my/truncate-path-component (car ps))))))
         (my/truncate-path resulting-ts remaining-ps m)))))
 
-(apply #'+ (mapcar #'length (my/path-components-as-list
+(apply #'+ (mapcar #'length (my/path-as-list
                    "/home/desenvolvedor/.emacs.d/config/config-mode-line.el")))
 
-(my/truncate-path nil (my/path-components-as-list
-                       "/home/desenvolvedor/.emacs.d/config/config-mode-line.el") 30)
+(my/truncate-path nil (my/path-as-list
+                       "/home/desenvolvedor/.emacs.d/config/config-mode-line.el")
+                  30)
 ;; ("/" "h" "d" "." "config" "config-mode-line.el")
 
 
