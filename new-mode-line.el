@@ -154,9 +154,9 @@ evil-mode-line-tag
 
 ;; https://stackoverflow.com/a/13473856
 (defun my/joinnodes (root &rest dirs)
-  "Joins a series of directories together, like Python's os.path.join,
-  (dotemacs-joindirs \"/tmp\" \"a\" \"b\" \"c\") => /tmp/a/b/c"
-
+  "Joins a series of directories together, like Python's
+os.path.join,(dotemacs-joindirs \"/tmp\" \"a\" \"b\" \"c\") =>
+/tmp/a/b/c"
   (if (not dirs)
       root
     (apply #'my/joinnodes
@@ -167,32 +167,54 @@ evil-mode-line-tag
 (abbreviate-file-name (apply #'my/joinnodes (reverse '("config" ".emacs.d" "~"))))
 (abbreviate-file-name (apply #'my/joinnodes (reverse '("c" ".e" "~"))))
 
+;; (defun my/list-as-path (list)
+;;   (if (not dirs)
+;;       root
+;;     (apply #'my/joinnodes
+;;            (expand-file-name (car dirs) root)
+;;            (cdr dirs))))
+
 (defun my/path-components-list-to-absolute-path (path-components-list)
   (apply #'my/joinnodes (reverse path-components-list)))
 
 (my/path-components-list-to-absolute-path '("config-mode-line.el" "config" ".emacs.d" "~"))
 ;; "/home/desenvolvedor/.emacs.d/config/config-mode-line.el"
 
-(defun my/truncate-path (ts ps m)
+(defun my/truncate-path-worker (ts ps m)
   (let* ((path (append ts ps))
          (length (apply #'+ (mapcar #'length path))))
     (if (or (not ps) (< length m))
         path
       (let ((remaining-ps (cdr ps))
             (resulting-ts (append ts (list (my/truncate-path-component (car ps))))))
-        (my/truncate-path resulting-ts remaining-ps m)))))
+        (my/truncate-path-worker resulting-ts remaining-ps m)))))
 
 (apply #'+ (mapcar #'length (my/path-as-list
                    "/home/desenvolvedor/.emacs.d/config/config-mode-line.el")))
 
-(my/truncate-path nil (my/path-as-list
+(my/truncate-path-worker nil (my/path-as-list
                        "/home/desenvolvedor/.emacs.d/config/config-mode-line.el")
                   30)
 ;; ("/" "h" "d" "." "config" "config-mode-line.el")
 
+(defun my/truncate-path (path max-length)
+  (let* ((as-list (my/path-as-list path))
+         (truncated (my/truncate-path-worker nil as-list max-length)))
+    (apply #'my/joinnodes truncated)))
+
+(my/truncate-path "/home/desenvolvedor/.emacs.d/config/config-mode-line.el" 30)
 
 (defun my/truncate-path-component (component)
   (substring component 0 1))
+
+(replace-regexp-in-string "\\([^[:word:]]*[:word:]\\).*" "\\1" ".emacs.d")
+(replace-regexp-in-string "\\([^a-z]*[a-z]\\).*" "\\1" ".emacs.d")
+(replace-regexp-in-string "\\([^[:alpha:]]*[[:alpha:]]\\).*" "\\1" ".emacs.d")
+(replace-regexp-in-string "^\\([^a-z]\\)" "z" ".emacs.d")
+(replace-regexp-in-string "\\.[:word:]" "b" ".emacs.d")
+
+(defun my/truncate-path-component (component)
+  (replace-regexp-in-string "\\([^[:alpha:]]*[[:alpha:]]\\).*" "\\1" component))
 
 (my/truncate-path-component "Documents")
 
