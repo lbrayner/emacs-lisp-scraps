@@ -180,29 +180,30 @@ os.path.join,(dotemacs-joindirs \"/tmp\" \"a\" \"b\" \"c\") =>
 (my/path-components-list-to-absolute-path '("config-mode-line.el" "config" ".emacs.d" "~"))
 ;; "/home/desenvolvedor/.emacs.d/config/config-mode-line.el"
 
-(defun my/truncate-path-worker (ts ps m)
+(defun my/shorten-path-worker (ts ps m)
   (let* ((path (append ts ps))
          (length (apply #'+ (mapcar #'length path))))
     (if (or (not ps) (< length m))
         path
       (let ((remaining-ps (cdr ps))
             (resulting-ts (append ts (list (my/truncate-path-component (car ps))))))
-        (my/truncate-path-worker resulting-ts remaining-ps m)))))
+        (my/shorten-path-worker resulting-ts remaining-ps m)))))
 
 (apply #'+ (mapcar #'length (my/path-as-list
                    "/home/desenvolvedor/.emacs.d/config/config-mode-line.el")))
 
-(my/truncate-path-worker nil (my/path-as-list
+(my/shorten-path-worker nil (my/path-as-list
                        "/home/desenvolvedor/.emacs.d/config/config-mode-line.el")
-                  30)
+                  40)
 ;; ("/" "h" "d" "." "config" "config-mode-line.el")
 
-(defun my/truncate-path (path max-length)
+(defun my/shorten-path (path max-length)
   (let* ((as-list (my/path-as-list path))
-         (truncated (my/truncate-path-worker nil as-list max-length)))
-    (apply #'my/joinnodes truncated)))
+         (shortended (my/shorten-path-worker nil as-list max-length)))
+    (apply #'my/joinnodes shortended)))
 
-(my/truncate-path "/home/desenvolvedor/.emacs.d/config/config-mode-line.el" 30)
+(my/shorten-path "/home/desenvolvedor/.emacs.d/config/config-mode-line.el" 30)
+(my/shorten-path "/home/desenvolvedor/.emacs.d/config/config-mode-line.el" 40)
 
 (defun my/truncate-path-component (component)
   (substring component 0 1))
